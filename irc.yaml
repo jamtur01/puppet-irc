@@ -1,0 +1,3 @@
+---
+:irc_server: 'irc://puppetbot:password@irc.freenode.net:6667'
+:irc_channel: '#channel'
