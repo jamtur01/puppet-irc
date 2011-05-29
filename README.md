@@ -20,10 +20,10 @@ Installation & Usage
         $ sudo gem install shout-bot
 
 2.  Install puppet-irc as a module in your Puppet master's module
-path.
+    path.
 
-3.  Update the `irc_server` and `irc_channel` variables in the `/etc/puppet/irc.yaml` file with 
-    your IRC connection details. An example file is included.
+3.  Update the `irc_server` and `irc_channel` variables in the `irc.yaml` file with 
+    your IRC connection details and copy the file to `/etc/puppet/`. An example file is included.
 
 4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 
