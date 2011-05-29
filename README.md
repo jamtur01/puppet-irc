@@ -17,7 +17,7 @@ Installation & Usage
 
 1.  Install the `shout-bot` gem on your Puppet master
 
-    $ sudo gem install shout-bot
+        $ sudo gem install shout-bot
 
 2.  Install puppet-irc as a module in your Puppet master's module
 path.
@@ -27,13 +27,13 @@ path.
 
 4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 
-    [master]
-    report = true
-    reports = irc
-    pluginsync = true
-    [agent]
-    report = true
-    pluginsync = true
+        [master]
+        report = true
+        reports = irc
+        pluginsync = true
+        [agent]
+        report = true
+        pluginsync = true
 
 5.  Run the Puppet client and sync the report as a plugin
 
