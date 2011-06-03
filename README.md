@@ -22,8 +22,11 @@ Installation & Usage
 2.  Install puppet-irc as a module in your Puppet master's module
     path.
 
-3.  Update the `irc_server` and `irc_channel` variables in the `irc.yaml` file with 
-    your IRC connection details and copy the file to `/etc/puppet/`. An example file is included.
+3.  Update the `irc_server` variable in the `irc.yaml` file with 
+    your IRC connection details. If you specify the `github_user`
+    and `github_token` variables the report processor will create 
+    a Gist containing the log output from the run. The Gist will be 
+    linked in the IRC notifications.
 
 4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 
