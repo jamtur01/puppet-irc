@@ -9,24 +9,26 @@ A Puppet report handler for sending notifications of failed runs to IRC.
 Requirements
 ------------
 
-* `shout-bot`
+* `carriet-pigeon`
 * `puppet`
 
 Installation & Usage
 --------------------
 
-1.  Install the `shout-bot` gem on your Puppet master
+1.  Install the `carrier-pigeon` gem on your Puppet master
 
-        $ sudo gem install shout-bot
+        $ sudo gem install carrier-pigeon
 
 2.  Install puppet-irc as a module in your Puppet master's module
     path.
 
-3.  Update the `irc_server` variable in the `irc.yaml` file with 
-    your IRC connection details. If you specify the `github_user`
-    and `github_token` variables the report processor will create 
-    a Gist containing the log output from the run. The Gist will be 
-    linked in the IRC notifications.
+3.  Update the `irc_server` variable in the `irc.yaml` file with
+    your IRC connection details. If you wish to enable an SSL
+    connection to your IRC server then set the `irc_ssl` option to
+    `true`. If you specify the `github_user` and `github_token`
+    variables the report processor will create a Gist containing
+    the log output from the run. The Gist will be linked in the
+    IRC notifications.
 
 4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 

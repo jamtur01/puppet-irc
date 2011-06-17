@@ -3,9 +3,9 @@ require 'yaml'
 require 'json'
 
 begin
-  require 'shout-bot'
+  require 'carrier-pigeon'
 rescue LoadError => e
-  Puppet.info "You need the `shout-bot` gem to use the IRC report"
+  Puppet.info "You need the `carrier-pigeon` gem to use the IRC report"
 end
 
 Puppet::Reports.register_report(:irc) do
@@ -13,8 +13,9 @@ Puppet::Reports.register_report(:irc) do
   configfile = File.join([File.dirname(Puppet.settings[:config]), "irc.yaml"])
   raise(Puppet::ParseError, "IRC report config file #{configfile} not readable") unless File.exist?(configfile)
   config = YAML.load_file(configfile)
-  IRC_SERVER = config[:irc_server]
-  GITHUB_USER = config[:github_user]
+  IRC_SERVER   = config[:irc_server]
+  IRC_SSL      = config[:irc_ssl]
+  GITHUB_USER  = config[:github_user]
   GITHUB_TOKEN = config[:github_token]
 
   desc <<-DESC
@@ -30,15 +31,21 @@ Puppet::Reports.register_report(:irc) do
 
       if GITHUB_USER && GITHUB_TOKEN
         gist_id = gist(self.host,output)
-        say = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at https://gist.github.com/#{gist_id}"
+        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at https://gist.github.com/#{gist_id}"
       else
         Puppet.info "No GitHub credentials provided in irc.yaml - cannot create Gist with log output."
-        say = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}."
+        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}."
       end
 
-      ShoutBot.shout("#{IRC_SERVER}") do |channel|
-        Puppet.debug "Sending status for #{self.host} to IRC."
-        channel.say "#{say}"
+      begin
+        timeout(8) do
+          Puppet.debug "Sending status for #{self.host} to IRC."
+          CarrierPigeon.send(:uri => "#{IRC_SERVER}", :message => "#{message}", :ssl => IRC_SSL)
+        end
+      rescue Timeout::Error
+         Puppet.error "Failed to send report to #{IRC_SERVER} retrying..."
+         max_attempts -= 1
+         retry if max_attempts > 0
       end
     end
   end
@@ -56,7 +63,7 @@ Puppet::Reports.register_report(:irc) do
         gist_id = JSON.parse(res.body)["gists"].first["repo"]
       end
     rescue Timeout::Error
-      Puppet.error("Timed out while attempting to create a GitHub Gist, retrying ...")
+      Puppet.error "Timed out while attempting to create a GitHub Gist, retrying ..."
       max_attempts -= 1
       retry if max_attempts > 0
     end
