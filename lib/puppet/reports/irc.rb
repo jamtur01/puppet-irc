@@ -8,6 +8,10 @@ rescue LoadError => e
   Puppet.info "You need the `carrier-pigeon` gem to use the IRC report"
 end
 
+unless Puppet.version >= '2.6.5'
+  fail "This report processor requires Puppet version 2.6.5 or later"
+end
+
 Puppet::Reports.register_report(:irc) do
 
   configfile = File.join([File.dirname(Puppet.settings[:config]), "irc.yaml"])
