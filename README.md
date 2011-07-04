@@ -10,7 +10,7 @@ Requirements
 ------------
 
 * `carriet-pigeon`
-* `puppet`
+* `puppet` (version 2.6.5 and later)
 
 Installation & Usage
 --------------------
