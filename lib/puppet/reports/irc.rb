@@ -44,7 +44,7 @@ Puppet::Reports.register_report(:irc) do
       begin
         timeout(8) do
           Puppet.debug "Sending status for #{self.host} to IRC."
-          CarrierPigeon.send(:uri => "#{IRC_SERVER}", :message => "#{message}", :ssl => IRC_SSL)
+          CarrierPigeon.send(:uri => IRC_SERVER, :message => message, :ssl => IRC_SSL)
         end
       rescue Timeout::Error
          Puppet.error "Failed to send report to #{IRC_SERVER} retrying..."
