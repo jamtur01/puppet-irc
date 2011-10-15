@@ -9,7 +9,7 @@ A Puppet report handler for sending notifications of failed runs to IRC.
 Requirements
 ------------
 
-* `carriet-pigeon`
+* `carrier-pigeon`
 * `puppet` (version 2.6.5 and later)
 
 Installation & Usage
