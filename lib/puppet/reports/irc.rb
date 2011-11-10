@@ -18,6 +18,7 @@ Puppet::Reports.register_report(:irc) do
   raise(Puppet::ParseError, "IRC report config file #{configfile} not readable") unless File.exist?(configfile)
   config = YAML.load_file(configfile)
   IRC_SERVER   = config[:irc_server]
+  IRC_PASSWORD = config[:irc_password]
   IRC_SSL      = config[:irc_ssl]
   GITHUB_USER  = config[:github_user]
   GITHUB_TOKEN = config[:github_token]
@@ -44,7 +45,11 @@ Puppet::Reports.register_report(:irc) do
       begin
         timeout(8) do
           Puppet.debug "Sending status for #{self.host} to IRC."
-          CarrierPigeon.send(:uri => IRC_SERVER, :message => message, :ssl => IRC_SSL)
+          if IRC_PASSWORD
+            CarrierPigeon.send(:uri => IRC_SERVER, :channel_password => IRC_PASSWORD, :message => message, :ssl => IRC_SSL, :join => true)
+          else
+            CarrierPigeon.send(:uri => IRC_SERVER, :message => message, :ssl => IRC_SSL, :join => true)
+          end
         end
       rescue Timeout::Error
          Puppet.error "Failed to send report to #{IRC_SERVER} retrying..."

@@ -25,8 +25,9 @@ Installation & Usage
 3.  Update the `irc_server` variable in the `irc.yaml` file with
     your IRC connection details. If you wish to enable an SSL
     connection to your IRC server then set the `irc_ssl` option to
-    `true`. If you specify the `github_user` and `github_token`
-    variables the report processor will create a Gist containing
+    `true`. If you need to specify a channel password please specify
+    the `irc_password` option. If you specify the `github_user` and 
+    `github_token` options the report processor will create a Gist containing
     the log output from the run. The Gist will be linked in the
     IRC notifications.
 
