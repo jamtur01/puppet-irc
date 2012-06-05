@@ -16,7 +16,7 @@ Puppet::Reports.register_report(:irc) do
 
   configfile = File.join([File.dirname(Puppet.settings[:config]), "irc.yaml"])
   raise(Puppet::ParseError, "IRC report config file #{configfile} not readable") unless File.exist?(configfile)
-  @config = YAML.load_file(configfile)
+  CONFIG = YAML.load_file(configfile)
 
   desc <<-DESC
   Send notification of failed reports to an IRC channel and if configured create a Gist with the log output.
@@ -29,7 +29,7 @@ Puppet::Reports.register_report(:irc) do
         output << log
       end
 
-      if @config[:github_user] && @config[:github_token]
+      if CONFIG[:github_user] && CONFIG[:github_token]
         gist_id = gist(self.host,output)
         message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at https://gist.github.com/#{gist_id}"
       else
@@ -37,44 +37,54 @@ Puppet::Reports.register_report(:irc) do
         message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}."
       end
 
+      max_attempts = 2
       begin
         timeout(8) do
           Puppet.debug "Sending status for #{self.host} to IRC."
           params  = {
-            :uri     => @config[:irc_server],
+            :uri     => CONFIG[:irc_server],
             :message => message,
-            :ssl     => @config[:irc_ssl],
+            :ssl     => CONFIG[:irc_ssl],
             :join    => true,
           }
-          if @config.has_key?(:irc_password)
-            params[:channel_password] = @config[:irc_password]
+          if CONFIG.has_key?(:irc_password)
+            params[:channel_password] = CONFIG[:irc_password]
           end
           CarrierPigeon.send(params)
         end
       rescue Timeout::Error
-         Puppet.error "Failed to send report to #{@config[:irc_server]} retrying..."
+         Puppet.notice "Failed to send report to #{CONFIG[:irc_server]} retrying..."
          max_attempts -= 1
-         retry if max_attempts > 0
+         if max_attempts > 0
+           retry
+         else
+           Puppet.err "Failed to send report to #{CONFIG[:irc_server]}"
+         end
       end
     end
   end
 
   def gist(host,output)
+    max_attempts = 2
     begin
       timeout(8) do
         res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
           "files[#{host}-#{Time.now.to_i.to_s}]" => output.join("\n"),
-          "login" => @config[:github_user],
-          "token" => @config[:github_token],
+          "login" => CONFIG[:github_user],
+          "token" => CONFIG[:github_token],
           "description" => "Puppet run failed on #{host} @ #{Time.now.asctime}",
           "public" => false
         })
         gist_id = JSON.parse(res.body)["gists"].first["repo"]
       end
     rescue Timeout::Error
-      Puppet.error "Timed out while attempting to create a GitHub Gist, retrying ..."
+      Puppet.notice "Timed out while attempting to create a GitHub Gist, retrying ..."
       max_attempts -= 1
-      retry if max_attempts > 0
+      if max_attempts > 0
+        retry
+      else
+        Puppet.err "Timed out while attempting to create a GitHub Gist."
+      end
     end
   end
 end

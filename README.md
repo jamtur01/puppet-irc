@@ -29,9 +29,13 @@ Installation & Usage
     the `irc_password` option. If you specify the `github_user` and 
     `github_token` options the report processor will create a Gist containing
     the log output from the run. The Gist will be linked in the
-    IRC notifications.
+    IRC notifications. 
 
-4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
+4.  Copy `irc.yaml` to `/etc/puppet`.
+    NOTE: Remove any configurations items you're not setting
+    if you are using the default file.
+
+5.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 
         [master]
         report = true
@@ -41,7 +45,7 @@ Installation & Usage
         report = true
         pluginsync = true
 
-5.  Run the Puppet client and sync the report as a plugin
+6.  Run the Puppet client and sync the report as a plugin
 
 Author
 ------
