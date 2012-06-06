@@ -1,6 +1,8 @@
 require 'puppet'
 require 'yaml'
 require 'json'
+require 'uri'
+require 'net/https'
 
 begin
   require 'carrier-pigeon'
@@ -29,9 +31,9 @@ Puppet::Reports.register_report(:irc) do
         output << log
       end
 
-      if CONFIG[:github_user] && CONFIG[:github_token]
+      if CONFIG[:github_user] && CONFIG[:github_password]
         gist_id = gist(self.host,output)
-        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at https://gist.github.com/#{gist_id}"
+        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
       else
         Puppet.info "No GitHub credentials provided in irc.yaml - cannot create Gist with log output."
         message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}."
@@ -68,14 +70,21 @@ Puppet::Reports.register_report(:irc) do
     max_attempts = 2
     begin
       timeout(8) do
-        res = Net::HTTP.post_form(URI.parse("http://gist.github.com/api/v1/json/new"), {
-          "files[#{host}-#{Time.now.to_i.to_s}]" => output.join("\n"),
-          "login" => CONFIG[:github_user],
-          "token" => CONFIG[:github_token],
-          "description" => "Puppet run failed on #{host} @ #{Time.now.asctime}",
-          "public" => false
-        })
-        gist_id = JSON.parse(res.body)["gists"].first["repo"]
+        https = Net::HTTP.new('api.github.com', 443)
+        https.use_ssl = true
+        https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        https.start {
+          req = Net::HTTP::Post.new('/gists')
+          req.basic_auth "#{CONFIG[:github_user]}", "#{CONFIG[:github_password]}"
+          req.content_type = 'application/json'
+          req.body = JSON.dump({
+            "files" => { "#{host}-#{Time.now.to_i.to_s}" => { "content" => output.join("\n") } },
+            "description" => "Puppet run failed on #{host} @ #{Time.now.asctime}",
+            "public" => false
+          })
+          response = https.request(req)
+          gist_id = JSON.parse(response.body)["html_url"]
+        }
       end
     rescue Timeout::Error
       Puppet.notice "Timed out while attempting to create a GitHub Gist, retrying ..."
