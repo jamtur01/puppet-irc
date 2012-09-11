@@ -2,6 +2,7 @@
 :irc_server: 'irc://puppetbot:password@irc.freenode.net:6667#channel'
 :irc_password: 'password'
 :irc_ssl: false
+:irc_register_first: false
 :github_password: 'password'
 :github_user: 'user'
 
