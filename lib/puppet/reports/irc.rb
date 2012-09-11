@@ -30,13 +30,15 @@ Puppet::Reports.register_report(:irc) do
       self.logs.each do |log|
         output << log
       end
-
+      if self.environment.nil?
+        self.environment == 'production'
+      end
       if CONFIG[:github_user] && CONFIG[:github_password]
         gist_id = gist(self.host,output)
-        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
+        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
       else
         Puppet.info "No GitHub credentials provided in irc.yaml - cannot create Gist with log output."
-        message = "Puppet run for #{self.host} #{self.status} at #{Time.now.asctime}."
+        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
       end
 
       max_attempts = 2
@@ -47,6 +49,7 @@ Puppet::Reports.register_report(:irc) do
             :uri     => CONFIG[:irc_server],
             :message => message,
             :ssl     => CONFIG[:irc_ssl],
+            :register_first => CONFIG[:irc_register_first],
             :join    => true,
           }
           if CONFIG.has_key?(:irc_password)
@@ -79,7 +82,7 @@ Puppet::Reports.register_report(:irc) do
           req.content_type = 'application/json'
           req.body = JSON.dump({
             "files" => { "#{host}-#{Time.now.to_i.to_s}" => { "content" => output.join("\n") } },
-            "description" => "Puppet run failed on #{host} @ #{Time.now.asctime}",
+            "description" => "Puppet #{environment} run failed on #{host} @ #{Time.now.asctime}",
             "public" => false
           })
           response = https.request(req)
