@@ -3,6 +3,7 @@
 :irc_password: 'password'
 :irc_ssl: false
 :irc_register_first: false
+:irc_join: true
 :github_password: 'password'
 :github_user: 'user'
 
