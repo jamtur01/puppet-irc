@@ -50,7 +50,7 @@ Puppet::Reports.register_report(:irc) do
             :message => message,
             :ssl     => CONFIG[:irc_ssl],
             :register_first => CONFIG[:irc_register_first],
-            :join    => true,
+            :join    => CONFIG[:irc_join],
           }
           if CONFIG.has_key?(:irc_password)
             params[:channel_password] = CONFIG[:irc_password]
