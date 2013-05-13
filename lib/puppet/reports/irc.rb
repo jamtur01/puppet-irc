@@ -3,6 +3,7 @@ require 'yaml'
 require 'json'
 require 'uri'
 require 'net/https'
+require 'socket'
 
 begin
   require 'carrier-pigeon'
@@ -36,8 +37,11 @@ Puppet::Reports.register_report(:irc) do
       if CONFIG[:github_user] && CONFIG[:github_password]
         gist_id = gist(self.host,output)
         message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
+      elsif CONFIG[:parsed_reports_dir]
+        report_server = Socket.gethostname
+        report_path = last_report(self.host)
+        message = "Puppet #{self.environment} run #{self.status} at #{Time.now.asctime}. Summary at #{report_server}:#{report_path}"
       else
-        Puppet.info "No GitHub credentials provided in irc.yaml - cannot create Gist with log output."
         message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
       end
 
@@ -98,5 +102,41 @@ Puppet::Reports.register_report(:irc) do
         Puppet.err "Timed out while attempting to create a GitHub Gist."
       end
     end
+  end
+
+  def last_report(host)
+    report_dir = File.join([Puppet.settings[:reportdir], host])
+    report_file = Dir.open(report_dir).collect {|f|
+      f unless f.match(/^\.+$/)
+    }.compact.sort_by { |f|
+      File.mtime("#{report_dir}/#{f}")
+    }.last
+
+    report = YAML.load_file(File.join([report_dir, report_file]))
+    destfile = File.join([CONFIG[:parsed_reports_dir], host + '-' + rand.to_s])
+
+    File.open(destfile, 'w+', 0644) do |f|
+
+      f.puts("\n\n\n#### Report for #{report.name},\n")
+      f.puts("     puppet run at #{report.time}:\n\n")
+
+      report.resource_statuses.each do |resource,properties|
+        if properties.failed
+          f.puts "\n#{resource} failed:\n    #{properties.file} +#{properties.line}\n"
+        end
+      end
+
+      f.puts "\n\n#### Logs captured on the node:\n\n"
+
+      report.logs.each do |log|
+        f.puts log
+      end
+
+      f.puts "\n\n#### Summary:\n\n"
+      f.puts report.summary
+    end
+
+    destfile
+
   end
 end
