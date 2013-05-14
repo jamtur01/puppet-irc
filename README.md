@@ -31,8 +31,10 @@ Installation & Usage
     If you specify the `github_user` and `github_password` options 
     the report processor will create a Gist containing the log output 
     from the run. The Gist will be linked in the IRC notification.
-    If you specify the `parsed_reports_dir` option, a human-readable version of
-    the report will be saved on the reportserver, instead of a Gist.
+    If you specify the `parsed_reports_dir` option (don't forget to also create
+    this directory on your reportserver, writeable to the user running the
+    puppet master), a human-readable version of the report will be saved on the
+    reportserver, and mentioned in the IRC notification.
 
 4.  Copy `irc.yaml` to `/etc/puppet`.
     NOTE: Remove any configurations items you're not setting

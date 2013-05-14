@@ -6,4 +6,4 @@
 :irc_join: true
 :github_password: 'password'
 :github_user: 'user'
-#:parsed_reports_dir: '/var/log/puppet-reports'
+:parsed_reports_dir: '/var/log/puppet-reports'

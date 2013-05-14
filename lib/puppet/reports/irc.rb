@@ -34,15 +34,18 @@ Puppet::Reports.register_report(:irc) do
       if self.environment.nil?
         self.environment == 'production'
       end
+
+      message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
+
       if CONFIG[:github_user] && CONFIG[:github_password]
         gist_id = gist(self.host,output)
-        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
-      elsif CONFIG[:parsed_reports_dir]
+        message << " Created a Gist showing the output at #{gist_id}"
+      end
+
+      if CONFIG[:parsed_reports_dir]
         report_server = Socket.gethostname
         report_path = last_report
-        message = "Puppet #{self.environment} run #{self.status} at #{Time.now.asctime}. Summary at #{report_server}:#{report_path}"
-      else
-        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
+        message << " Summary at #{report_server}:#{report_path}"
       end
 
       max_attempts = 2
