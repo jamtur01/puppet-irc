@@ -48,6 +48,20 @@ Puppet::Reports.register_report(:irc) do
         message << " Summary at #{report_server}:#{report_path}"
       end
 
+      if CONFIG[:report_url] and CONFIG[:report_url].is_a?(String)
+        map = {
+          'c' => self.respond_to?(:configuration_version) ? self.configuration_version : nil,
+          'e' => self.respond_to?(:environment)           ? self.environment : nil,
+          'h' => self.respond_to?(:host)                  ? self.host : nil,
+          'k' => self.respond_to?(:kind)                  ? self.kind : nil,
+          's' => self.respond_to?(:status)                ? self.status : nil,
+          't' => self.respond_to?(:time)                  ? self.time : nil,
+          'v' => self.respond_to?(:puppet_version)        ? self.puppet_version : nil,
+        }
+        message << " Report URL: "
+        message << CONFIG[:report_url].gsub(/%([#{map.keys}])/) {|s| map[$1].to_s }
+      end
+
       max_attempts = 2
       begin
         timeout(8) do

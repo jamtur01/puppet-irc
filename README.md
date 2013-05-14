@@ -35,6 +35,8 @@ Installation & Usage
     this directory on your reportserver, writeable to the user running the
     puppet master), a human-readable version of the report will be saved on the
     reportserver, and mentioned in the IRC notification.
+    If you specify the `report_url` option, an URL for your report will be
+    appended to the IRC notification.
 
 4.  Copy `irc.yaml` to `/etc/puppet`.
     NOTE: Remove any configurations items you're not setting
