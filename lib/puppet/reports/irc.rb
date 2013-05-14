@@ -39,7 +39,7 @@ Puppet::Reports.register_report(:irc) do
         message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
       elsif CONFIG[:parsed_reports_dir]
         report_server = Socket.gethostname
-        report_path = last_report(self.host)
+        report_path = last_report
         message = "Puppet #{self.environment} run #{self.status} at #{Time.now.asctime}. Summary at #{report_server}:#{report_path}"
       else
         message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
@@ -104,23 +104,15 @@ Puppet::Reports.register_report(:irc) do
     end
   end
 
-  def last_report(host)
-    report_dir = File.join([Puppet.settings[:reportdir], host])
-    report_file = Dir.open(report_dir).collect {|f|
-      f unless f.match(/^\.+$/)
-    }.compact.sort_by { |f|
-      File.mtime("#{report_dir}/#{f}")
-    }.last
-
-    report = YAML.load_file(File.join([report_dir, report_file]))
-    destfile = File.join([CONFIG[:parsed_reports_dir], host + '-' + rand.to_s])
+  def last_report
+    destfile = File.join([CONFIG[:parsed_reports_dir], self.host + '-' + rand.to_s])
 
     File.open(destfile, 'w+', 0644) do |f|
 
-      f.puts("\n\n\n#### Report for #{report.name},\n")
-      f.puts("     puppet run at #{report.time}:\n\n")
+      f.puts("\n\n\n#### Report for #{self.name},\n")
+      f.puts("     puppet run at #{self.time}:\n\n")
 
-      report.resource_statuses.each do |resource,properties|
+      self.resource_statuses.each do |resource,properties|
         if properties.failed
           f.puts "\n#{resource} failed:\n    #{properties.file} +#{properties.line}\n"
         end
@@ -128,12 +120,12 @@ Puppet::Reports.register_report(:irc) do
 
       f.puts "\n\n#### Logs captured on the node:\n\n"
 
-      report.logs.each do |log|
+      self.logs.each do |log|
         f.puts log
       end
 
       f.puts "\n\n#### Summary:\n\n"
-      f.puts report.summary
+      f.puts self.summary
     end
 
     destfile
