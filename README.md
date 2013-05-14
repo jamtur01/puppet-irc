@@ -22,36 +22,37 @@ Installation & Usage
 2.  Install puppet-irc as a module in your Puppet master's module
     path.
 
-3.  Update the `irc_server` variable in the `irc.yaml` file with
-    your IRC connection details. If you wish to enable an SSL
-    connection to your IRC server then set the `irc_ssl` option to
-    `true`. If you need to specify a channel password please specify
-    the `irc_password` option. If you are getting register_first error
-    please specify irc_register_first as true. 
-    If you specify the `github_user` and `github_password` options 
-    the report processor will create a Gist containing the log output 
-    from the run. The Gist will be linked in the IRC notification.
-    If you specify the `parsed_reports_dir` option, and have `store` reports
-    enabled, a human-readable version of the yaml report will be saved on the
-    reportserver, instead of a Gist.
+3.  Copy `irc.yaml` to `/etc/puppet` and modify configuration settings to your
+    fit your needs. NOTE: Remove any configurations items you're not setting.
+    Available options are decribed below:
+    * `irc_server`: URI containing the channel connection details. Example: `irc://puppetbot:password@irc.freenode.net:6667#channel`
+    * `irc_ssl`: set to `true` if you wish to enable an SSL connection to your IRC server.
+    * `irc_password`: Specify the channel password here if needed.
+    * `irc_register_first` : set to `true` if you are getting register_first error.
+    * `irc_join`: set to `false` if you wish to disable parts/joins/quits messages.
+    * `github_user`: github.com user account. If specified, the report processor will create a Gist containing the log output from the run and link it in the IRC notification.
+    * `github_password`: above github user's password.
+    * `parsed_reports_dir`: path to a directory on the reportserver. If specified, a human-readable version of the report will be saved in this directory, and it's path will be mentioned in the IRC notification. Don't forget to create the directory on your reportserver, writeable to the user running the puppet-master, and setup a job to clean old reports.
+    * `report_url`: an URL, which if specified, will be appended to the IRC notification. Some special characters will be expanded to values found in the report. Example: `http://foreman.example.com/hosts/%h/reports/last`. Currently supported characters include:
+      * `%c`: configuration version string
+      * `%e`: puppet's run environment
+      * `%h`: host name from the report
+      * `%k`: kind of report
+      * `%s`: report status
+      * `%t`: report timestamp
+      * `%v`: puppet version
 
-4.  Copy `irc.yaml` to `/etc/puppet`.
-    NOTE: Remove any configurations items you're not setting
-    if you are using the default file.
-
-5.  Enable pluginsync and reports on your master and clients in `puppet.conf`
+4.  Enable pluginsync and reports on your master and clients in `puppet.conf`
 
         [master]
         report = true
         reports = irc
-        ### or if you enable :parsed_reports_dir
-        # reports = store,irc
         pluginsync = true
         [agent]
         report = true
         pluginsync = true
 
-6.  Run the Puppet client and sync the report as a plugin
+5.  Run the Puppet client and sync the report as a plugin
 
 Author
 ------

@@ -34,15 +34,32 @@ Puppet::Reports.register_report(:irc) do
       if self.environment.nil?
         self.environment == 'production'
       end
+
+      message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
+
       if CONFIG[:github_user] && CONFIG[:github_password]
         gist_id = gist(self.host,output)
-        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}. Created a Gist showing the output at #{gist_id}"
-      elsif CONFIG[:parsed_reports_dir]
+        message << " Created a Gist showing the output at #{gist_id}"
+      end
+
+      if CONFIG[:parsed_reports_dir]
         report_server = Socket.gethostname
-        report_path = last_report(self.host)
-        message = "Puppet #{self.environment} run #{self.status} at #{Time.now.asctime}. Summary at #{report_server}:#{report_path}"
-      else
-        message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
+        report_path = last_report
+        message << " Summary at #{report_server}:#{report_path}"
+      end
+
+      if CONFIG[:report_url] and CONFIG[:report_url].is_a?(String)
+        map = {
+          'c' => self.respond_to?(:configuration_version) ? self.configuration_version : nil,
+          'e' => self.respond_to?(:environment)           ? self.environment : nil,
+          'h' => self.respond_to?(:host)                  ? self.host : nil,
+          'k' => self.respond_to?(:kind)                  ? self.kind : nil,
+          's' => self.respond_to?(:status)                ? self.status : nil,
+          't' => self.respond_to?(:time)                  ? self.time : nil,
+          'v' => self.respond_to?(:puppet_version)        ? self.puppet_version : nil,
+        }
+        message << " Report URL: "
+        message << CONFIG[:report_url].gsub(/%([#{map.keys}])/) {|s| map[$1].to_s }
       end
 
       max_attempts = 2
@@ -104,23 +121,15 @@ Puppet::Reports.register_report(:irc) do
     end
   end
 
-  def last_report(host)
-    report_dir = File.join([Puppet.settings[:reportdir], host])
-    report_file = Dir.open(report_dir).collect {|f|
-      f unless f.match(/^\.+$/)
-    }.compact.sort_by { |f|
-      File.mtime("#{report_dir}/#{f}")
-    }.last
-
-    report = YAML.load_file(File.join([report_dir, report_file]))
-    destfile = File.join([CONFIG[:parsed_reports_dir], host + '-' + rand.to_s])
+  def last_report
+    destfile = File.join([CONFIG[:parsed_reports_dir], self.host + '-' + rand.to_s])
 
     File.open(destfile, 'w+', 0644) do |f|
 
-      f.puts("\n\n\n#### Report for #{report.name},\n")
-      f.puts("     puppet run at #{report.time}:\n\n")
+      f.puts("\n\n\n#### Report for #{self.name},\n")
+      f.puts("     puppet run at #{self.time}:\n\n")
 
-      report.resource_statuses.each do |resource,properties|
+      self.resource_statuses.each do |resource,properties|
         if properties.failed
           f.puts "\n#{resource} failed:\n    #{properties.file} +#{properties.line}\n"
         end
@@ -128,12 +137,12 @@ Puppet::Reports.register_report(:irc) do
 
       f.puts "\n\n#### Logs captured on the node:\n\n"
 
-      report.logs.each do |log|
+      self.logs.each do |log|
         f.puts log
       end
 
       f.puts "\n\n#### Summary:\n\n"
-      f.puts report.summary
+      f.puts self.summary
     end
 
     destfile
