@@ -100,6 +100,7 @@ Puppet::Reports.register_report(:irc) do
         https.start {
           req = Net::HTTP::Post.new('/gists')
           req.basic_auth "#{CONFIG[:github_user]}", "#{CONFIG[:github_password]}"
+          req.add_field("User-Agent", "#{CONFIG[:github_user]}")
           req.content_type = 'application/json'
           req.body = JSON.dump({
             "files" => { "#{host}-#{Time.now.to_i.to_s}" => { "content" => output.join("\n") } },
