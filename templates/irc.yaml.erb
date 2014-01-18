@@ -1,0 +1,30 @@
+---
+:irc_server: '<%= @irc_server %>'
+<% if @use_ssl -%>
+:irc_ssl: true
+<% else -%>
+:irc_ssl: false
+<% end -%>
+<% if @channel_password -%>
+:irc_password: '<%= @channel_password %>'
+<% end -%>
+<% if @register_first -%>
+:irc_register_first: true
+<% else -%>
+:irc_register_first: false
+<% end -%>
+<% if @show_joins -%>
+:irc_join: true
+<% else -%>
+:irc_join: false
+<% end -%>
+<% if @github_user -%>
+:github_user: '<%= @github_user %>'
+:github_password: '<%= @github_password %>'
+<% end -%>
+<% if @parsed_reports_dir -%>
+:parsed_reports_dir: '<%= @parsed_reports_dir %>'
+<% end -%>
+<% if @report_url -%>
+:report_url: '<%= @report_url %>'
+<% end -%>

@@ -1,10 +1,16 @@
-puppet-irc
-==========
+puppet-ircreporter
+==================
 
 Description
 -----------
 
 A Puppet report handler for sending notifications of failed runs to IRC.
+
+This is forked from https://github.com/jamtur01/puppet-irc, and James deserves
+all the credit. All I did was (1) rename it to "ircreporter" instead of the
+more generic (and likely to collide with other modules) "irc", and (2) make
+the 'ircreporter' puppet class actually handle the installation and
+configuration.
 
 Requirements
 ------------
@@ -12,8 +18,28 @@ Requirements
 * `carrier-pigeon`
 * `puppet` (version 2.6.5 and later)
 
-Installation & Usage
---------------------
+Installation & Usage (with ircreporter class)
+---------------------------------------------
+
+On your report server (usually your Puppet Master), define the "ircreporter" class in a manifest or
+your ENC with the appropriate parameters:
+
+     class { 'ircreporter':
+       irc_server  => 'irc://puppetbot:password@irc.freenode.net:6667#channel',
+       report_url  => 'http://foreman.example.com/hosts/%h/reports/last',
+     }
+
+Run puppet once on the master/report server to sync the plugin and setup requirements
+and the config file. Then, add "irc" to the comma-separated "reports" list in
+puppet.conf on your master (or via a puppet module that configures puppet,
+like [stevenrjohnson/puppetlabs-puppet](https://github.com/stephenrjohnson/puppetlabs-puppet)
+or [jbouse/puppetlabs-puppet](https://github.com/jbouse/puppetlabs-puppet/).
+
+Installation & Usage (manual setup)
+-----------------------------------
+
+This is unmodified from James' upstream version - so you might
+as well use https://github.com/jamtur01/puppet-irc instead.
 
 1.  Install the `carrier-pigeon` gem on your Puppet master
 
@@ -58,6 +84,7 @@ Author
 ------
 
 James Turnbull <james@lovedthanlost.net>
+Jason Antman <jason@jasonantman.com>
 
 License
 -------
