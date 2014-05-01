@@ -90,18 +90,19 @@
 # Jason Antman <jason@jasonantman.com>
 #
 class irc (
-  $irc_server         = undef,
-  $use_ssl            = false,
-  $channel_password   = undef,
-  $register_first     = false,
-  $show_joins         = true,
-  $timeout            = undef,
-  $github_user        = undef,
-  $github_password    = undef,
-  $parsed_reports_dir = undef,
-  $report_url         = undef,
-  $puppet_user        = 'puppet',
-  $puppet_confdir     = '/etc/puppet'
+  $irc_server         = $irc::params::irc_server,
+  $use_ssl            = $irc::params::use_ssl,
+  $channel_password   = $irc::params::channel_password,
+  $register_first     = $irc::params::register_first,
+  $show_joins         = $irc::params::show_joins,
+  $timeout            = $irc::params::timeout,
+  $github_user        = $irc::params::github_user,
+  $github_password    = $irc::params::github_password,
+  $parsed_reports_dir = $irc::params::parsed_reports_dir,
+  $report_url         = $irc::params::report_url,
+  $puppet_user        = $irc::params::puppet_user,
+  $puppet_confdir     = $irc::params::puppet_confdir,
+  $gem_provider       = $irc::params::gem_provider,
 ){
 
   validate_string($irc_server)
@@ -110,13 +111,7 @@ class irc (
   validate_bool($show_joins)
   validate_string($puppet_user)
   validate_absolute_path($puppet_confdir)
-
-  if $::is_pe {
-    $gem_provider = 'pe_gem'
-  }
-  else {
-    $gem_provider = 'gem'
-  }
+  validate_string($gem_provider)
 
   package {'carrier-pigeon':
     ensure   => present,
