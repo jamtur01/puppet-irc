@@ -102,7 +102,7 @@ class irc (
   $puppet_user        = $irc::params::puppet_user,
   $puppet_confdir     = $irc::params::puppet_confdir,
   $gem_provider       = $irc::params::gem_provider,
-){
+) inherits irc::params {
 
   validate_string($irc_server)
   validate_bool($use_ssl)
