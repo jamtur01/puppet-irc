@@ -2,3 +2,4 @@
 pkg/*
 .ruby-*
 spec/fixtures
+*.swp

@@ -110,9 +110,16 @@ class irc (
   validate_string($puppet_user)
   validate_absolute_path($puppet_confdir)
 
+  if $::is_pe {
+    $gem_provider = 'pe_gem'
+  }
+  else {
+    $gem_provider = 'gem'
+  }
+
   package {'carrier-pigeon':
     ensure   => present,
-    provider => gem,
+    provider => $gem_provider,
   }
 
   # Template Uses:
