@@ -132,7 +132,6 @@ class irc (
     mode    => 0640,
     owner   => $puppet_user,
     group   => 'root',
-    content => template('ircreporter/irc.yaml.erb'),
+    content => template("${module_name}/irc.yaml.erb"),
   }
-
 }
