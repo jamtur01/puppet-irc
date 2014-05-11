@@ -1,2 +1,5 @@
 *.gem
 pkg/*
+.ruby-*
+spec/fixtures
+*.swp

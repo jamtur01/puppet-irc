@@ -90,18 +90,19 @@
 # Jason Antman <jason@jasonantman.com>
 #
 class irc (
-  $irc_server         = undef,
-  $use_ssl            = false,
-  $channel_password   = undef,
-  $register_first     = false,
-  $show_joins         = true,
-  $github_user        = undef,
-  $github_password    = undef,
-  $parsed_reports_dir = undef,
-  $report_url         = undef,
-  $puppet_user        = 'puppet',
-  $puppet_confdir     = '/etc/puppet'
-){
+  $irc_server         = $irc::params::irc_server,
+  $use_ssl            = $irc::params::use_ssl,
+  $channel_password   = $irc::params::channel_password,
+  $register_first     = $irc::params::register_first,
+  $show_joins         = $irc::params::show_joins,
+  $github_user        = $irc::params::github_user,
+  $github_password    = $irc::params::github_password,
+  $parsed_reports_dir = $irc::params::parsed_reports_dir,
+  $report_url         = $irc::params::report_url,
+  $puppet_user        = $irc::params::puppet_user,
+  $puppet_confdir     = $irc::params::puppet_confdir,
+  $gem_provider       = $irc::params::gem_provider,
+) inherits irc::params {
 
   validate_string($irc_server)
   validate_bool($use_ssl)
@@ -109,10 +110,11 @@ class irc (
   validate_bool($show_joins)
   validate_string($puppet_user)
   validate_absolute_path($puppet_confdir)
+  validate_string($gem_provider)
 
   package {'carrier-pigeon':
     ensure   => present,
-    provider => gem,
+    provider => $gem_provider,
   }
 
   # Template Uses:
@@ -132,7 +134,6 @@ class irc (
     mode    => 0640,
     owner   => $puppet_user,
     group   => 'root',
-    content => template('ircreporter/irc.yaml.erb'),
+    content => template("${module_name}/irc.yaml.erb"),
   }
-
 }
