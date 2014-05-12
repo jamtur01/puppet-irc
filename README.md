@@ -1,4 +1,4 @@
-puppet-irc
+ puppet-irc
 ==========
 
 Description
@@ -46,6 +46,7 @@ Installation & Usage (manual setup)
     * `irc_password`: Specify the channel password here if needed.
     * `irc_register_first` : set to `true` if you are getting register_first error.
     * `irc_join`: set to `false` if you wish to disable parts/joins/quits messages.
+    * `timeout`: how long network connections to your irc server and github should wait. Defaults to 8 seconds.
     * `github_user`: github.com user account. If specified, the report processor will create a Gist containing the log output from the run and link it in the IRC notification.
     * `github_password`: above github user's password.
     * `parsed_reports_dir`: path to a directory on the reportserver. If specified, a human-readable version of the report will be saved in this directory, and it's path will be mentioned in the IRC notification. Don't forget to create the directory on your reportserver, writeable to the user running the puppet-master, and setup a job to clean old reports.

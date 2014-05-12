@@ -95,6 +95,7 @@ class irc (
   $channel_password   = undef,
   $register_first     = false,
   $show_joins         = true,
+  $timeout            = undef,
   $github_user        = undef,
   $github_password    = undef,
   $parsed_reports_dir = undef,
@@ -121,6 +122,7 @@ class irc (
   # - $channel_password
   # - $register_first
   # - $show_joins
+  # - $timeout
   # - $github_user
   # - $github_password
   # - $parsed_reports_dir
