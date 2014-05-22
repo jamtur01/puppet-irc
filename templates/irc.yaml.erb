@@ -18,6 +18,9 @@
 <% else -%>
 :irc_join: false
 <% end -%>
+<% if @timeout -%>
+:timeout: <%= @timeout %>
+<% end -%>
 <% if @github_user -%>
 :github_user: '<%= @github_user %>'
 :github_password: '<%= @github_password %>'

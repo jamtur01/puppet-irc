@@ -34,6 +34,7 @@ Puppet::Reports.register_report(:irc) do
       if self.environment.nil?
         self.environment == 'production'
       end
+      CONFIG[:timeout] ||= 8
 
       message = "Puppet #{self.environment} run for #{self.host} #{self.status} at #{Time.now.asctime}."
 
@@ -64,7 +65,7 @@ Puppet::Reports.register_report(:irc) do
 
       max_attempts = 2
       begin
-        timeout(8) do
+        timeout(CONFIG[:timeout]) do
           Puppet.debug "Sending status for #{self.host} to IRC."
           params  = {
             :uri     => CONFIG[:irc_server],
@@ -93,7 +94,7 @@ Puppet::Reports.register_report(:irc) do
   def gist(host,output)
     max_attempts = 2
     begin
-      timeout(8) do
+      timeout(CONFIG[:timeout]) do
         https = Net::HTTP.new('api.github.com', 443)
         https.use_ssl = true
         https.verify_mode = OpenSSL::SSL::VERIFY_NONE
