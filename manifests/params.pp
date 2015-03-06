@@ -11,7 +11,7 @@ class irc::params {
   $parsed_reports_dir = undef
   $report_url         = undef
 
-  if $::is_pe {
+  if str2bool($::is_pe) {
     $puppet_user        = 'pe-puppet'
     $puppet_confdir     = '/etc/puppetlabs/puppet'
     $gem_provider       = 'pe_gem'
