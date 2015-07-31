@@ -18,7 +18,7 @@ end
 Puppet::Reports.register_report(:irc) do
 
   configfile = File.join([File.dirname(Puppet.settings[:config]), "irc.yaml"])
-  raise(Puppet::ParseError, "IRC report config file #{configfile} not readable") unless File.exist?(configfile)
+  raise "IRC report config file #{configfile} not readable" unless File.exist?(configfile)
   CONFIG = YAML.load_file(configfile)
 
   desc <<-DESC
