@@ -11,13 +11,21 @@ class irc::params {
   $parsed_reports_dir = undef
   $report_url         = undef
 
-  if str2bool($::is_pe) {
-    $puppet_user        = 'pe-puppet'
-    $puppet_confdir     = '/etc/puppetlabs/puppet'
-    $gem_provider       = 'pe_gem'
+  # assume that the master this is being enforced on is the same configuration as the one compiling
+  $puppet_confdir     = $::settings::confdir
+  $puppet_user        = $::settings::user
+
+  if $::pe_server_version {
+    $gem_provider     = 'puppetserver_gem'
+  }
+  elsif str2bool($::is_pe) {
+    if versioncmp($::pe_version, '3.7.0') > 0 {
+        $gem_provider = 'pe_puppetserver_gem'
+      }
+      else {
+        $gem_provider = 'pe_gem'
+    }
   } else {
-    $puppet_user        = 'puppet'
-    $puppet_confdir     = '/etc/puppet'
-    $gem_provider       = 'gem'
+    $gem_provider     = 'gem'
   }
 }
